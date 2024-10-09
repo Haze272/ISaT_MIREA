@@ -9,7 +9,7 @@ os.environ['OMP_NUM_THREADS'] = '1'
 
 def visualize_with_trimap(scaled_data, title):
     embedding = trimap.TRIMAP().fit_transform(scaled_data)
-    embedding = trimap.TRIMAP(knn_tuple=(5, 5)).fit_transform(scaled_data)
+    # embedding = trimap.TRIMAP(knn_tuple=(5, 5)).fit_transform(scaled_data)
 
     plt.figure(figsize=(8, 6))
     plt.scatter(embedding[:, 0], embedding[:, 1], c='blue', cmap='Spectral')
@@ -21,7 +21,7 @@ def visualize_with_trimap(scaled_data, title):
 def main():
     df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice2/mammoth2.csv")
     numerical_data = df.select_dtypes(include=['float64', 'int64'])
-    numerical_data = numerical_data.sample(frac=0.1, random_state=42)
+    # numerical_data = numerical_data.sample(frac=0.1, random_state=42)
 
     scalers = {
         'MinMax Scaling': MinMaxScaler(),
