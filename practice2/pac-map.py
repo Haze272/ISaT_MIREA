@@ -1,24 +1,22 @@
-
-from matplotlib import pyplot as plt
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
-import trimap
+import pacmap
+import matplotlib.pyplot as plt
 import os
 os.environ['OMP_NUM_THREADS'] = '1'
 
-def visualize_with_trimap(scaled_data, title):
-    embedding = trimap.TRIMAP().fit_transform(scaled_data)
-    embedding = trimap.TRIMAP(knn_tuple=(5, 5)).fit_transform(scaled_data)
+def visualize_with_pacmap(scaled_data, title):
+    embedding = pacmap.PaCMAP(n_components=2, n_neighbors=10, MN_ratio=0.5, FP_ratio=2.0)
+
+    pacmac_result = embedding.fit_transform(scaled_data, init="pca")
 
     plt.figure(figsize=(8, 6))
-    plt.scatter(embedding[:, 0], embedding[:, 1], c='blue', cmap='Spectral')
+    plt.scatter(pacmac_result[:, 0], pacmac_result[:, 1], c='blue', cmap='Spectral')
     plt.title(title)
-    plt.xlabel("trimap component 1")
-    plt.ylabel("trimap component 2")
+    plt.xlabel("pacmap component 1")
+    plt.ylabel("pacmap component 2")
     plt.show()
-
 def main():
-
     # Загрузка данных
     df = pd.read_csv("FILEPATH")
 
@@ -38,7 +36,7 @@ def main():
     # Применяем t-SNE и визуализируем для каждого метода масштабирования
     for scaler_name, scaler in scalers.items():
         scaled_data = scaler.fit_transform(df)
-        visualize_with_trimap(scaled_data, f"trimap with {scaler_name}")
+        visualize_with_pacmap(scaled_data, f"pacmap with {scaler_name}")
 
 
 if __name__ == '__main__':

@@ -1,25 +1,24 @@
-
-from matplotlib import pyplot as plt
-import pandas as pd
+import umap
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
-import trimap
-import os
-os.environ['OMP_NUM_THREADS'] = '1'
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
-def visualize_with_trimap(scaled_data, title):
-    embedding = trimap.TRIMAP().fit_transform(scaled_data)
-    embedding = trimap.TRIMAP(knn_tuple=(5, 5)).fit_transform(scaled_data)
+def visualize_with_umap(scaled_data, title):
+    umap_model = umap.UMAP(n_neighbors=15, n_components=2, metric='euclidean')  # параметры можно настроить
+    embedding = umap_model.fit_transform(scaled_data)
 
     plt.figure(figsize=(8, 6))
     plt.scatter(embedding[:, 0], embedding[:, 1], c='blue', cmap='Spectral')
     plt.title(title)
-    plt.xlabel("trimap component 1")
-    plt.ylabel("trimap component 2")
+    plt.xlabel("umap component 1")
+    plt.ylabel("umap component 2")
     plt.show()
-
 def main():
+    sns.set(style='white', context='notebook', rc={'figure.figsize': (14, 10)})
 
-    # Загрузка данных
+    # Чтение данных из CSV
     df = pd.read_csv("FILEPATH")
 
     # Убираем ненужные колонки, если есть (например, текстовые данные)
@@ -37,9 +36,9 @@ def main():
 
     # Применяем t-SNE и визуализируем для каждого метода масштабирования
     for scaler_name, scaler in scalers.items():
-        scaled_data = scaler.fit_transform(df)
-        visualize_with_trimap(scaled_data, f"trimap with {scaler_name}")
-
+        scaled_data = scaler.fit_transform(numerical_data)
+        visualize_with_umap(scaled_data, f"umap with {scaler_name}")
 
 if __name__ == '__main__':
     main()
+    print('loh')
