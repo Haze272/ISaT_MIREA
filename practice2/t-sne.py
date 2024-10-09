@@ -18,23 +18,16 @@ def visualize_with_tsne(scaled_data, title):
 
 
 def main():
-    # Загрузка данных
     df = pd.read_csv("FILEPATH")
-
-    # Убираем ненужные колонки, если есть (например, текстовые данные)
     numerical_data = df.select_dtypes(include=['float64', 'int64'])
-
-    # Пример уменьшения данных до 10%
     numerical_data = numerical_data.sample(frac=0.1, random_state=42)
 
-    # Масштабирование данных
     scalers = {
         'MinMax Scaling': MinMaxScaler(),
         'Standard Scaling': StandardScaler(),
         'Robust Scaling': RobustScaler()
     }
 
-    # Применяем t-SNE и визуализируем для каждого метода масштабирования
     for scaler_name, scaler in scalers.items():
         scaled_data = scaler.fit_transform(numerical_data)
         visualize_with_tsne(scaled_data, f"t-SNE with {scaler_name}")

@@ -6,6 +6,7 @@ import trimap
 import os
 os.environ['OMP_NUM_THREADS'] = '1'
 
+
 def visualize_with_trimap(scaled_data, title):
     embedding = trimap.TRIMAP().fit_transform(scaled_data)
     embedding = trimap.TRIMAP(knn_tuple=(5, 5)).fit_transform(scaled_data)
@@ -18,24 +19,15 @@ def visualize_with_trimap(scaled_data, title):
     plt.show()
 
 def main():
-
-    # Загрузка данных
-    df = pd.read_csv("FILEPATH")
-
-    # Убираем ненужные колонки, если есть (например, текстовые данные)
+    df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice2/mammoth2.csv")
     numerical_data = df.select_dtypes(include=['float64', 'int64'])
-
-    # Пример уменьшения данных до 10%
     numerical_data = numerical_data.sample(frac=0.1, random_state=42)
 
-    # Масштабирование данных
     scalers = {
         'MinMax Scaling': MinMaxScaler(),
         'Standard Scaling': StandardScaler(),
         'Robust Scaling': RobustScaler()
     }
-
-    # Применяем t-SNE и визуализируем для каждого метода масштабирования
     for scaler_name, scaler in scalers.items():
         scaled_data = scaler.fit_transform(df)
         visualize_with_trimap(scaled_data, f"trimap with {scaler_name}")
