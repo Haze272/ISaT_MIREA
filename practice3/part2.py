@@ -45,21 +45,20 @@ def main():
 
     print("Best parameters found:", grid.best_params_)
 
-    # Визуализация с использованием t-SNE:
+    # Применение t-SNE к тестовым данным:
     X_embedded = TSNE(n_components=2).fit_transform(X_test)
 
-    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_test)
-    plt.title("t-SNE Visualization")
+    # Визуализация с предсказанными метками:
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_pred_test, cmap='viridis', label='Predicted classes')
+    plt.colorbar()
+    plt.title("t-SNE Visualization based on predicted classes")
     plt.show()
 
-    # Дополнительная визуализация UMAP, TriMAP, PacMAP (если потребуется):
-    # Пример для UMAP:
-    # reducer = umap.UMAP()
-    # X_umap = reducer.fit_transform(X_test)
-    #
-    # plt.scatter(X_umap[:, 0], X_umap[:, 1], c=y_test)
-    # plt.title("UMAP Visualization")
-    # plt.show()
+    # Визуализация с истинными метками:
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_test, cmap='coolwarm', label='True classes')
+    plt.colorbar()
+    plt.title("t-SNE Visualization based on true classes")
+    plt.show()
 
 if __name__ == '__main__':
     main()

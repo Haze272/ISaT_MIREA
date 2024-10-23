@@ -4,14 +4,11 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.manifold import TSNE
-# import umap
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-
-
 def main():
+    # Загрузка набора данных
     dermatology = fetch_ucirepo(id=33)
 
     X = dermatology.data.features.dropna()
@@ -22,8 +19,8 @@ def main():
     # Разделить данные на обучающую и тестовую выборки:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Обучить SVM-классификатор:
-    clf = SVC(kernel='linear', C=1)  # Начнем с линейного ядра
+    # Обучить SVM-классификатор с линейным ядром:
+    clf = SVC(kernel='linear', C=1)
     clf.fit(X_train, y_train)
 
     # Проверить точность, Recall, Precision и F1:
@@ -51,12 +48,19 @@ def main():
 
     print("Best parameters found:", grid.best_params_)
 
-    # Визуализация с использованием t-SNE, UMAP, и других алгоритмов: Для этого можно использовать следующие библиотеки:
-    # Пример для t-SNE
+    # Применение t-SNE к тестовым данным:
     X_embedded = TSNE(n_components=2).fit_transform(X_test)
 
-    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_test)
-    plt.title("t-SNE Visualization")
+    # Визуализация с предсказанными метками:
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_pred_test, cmap='viridis', label='Predicted classes')
+    plt.colorbar()
+    plt.title("t-SNE Visualization based on predicted classes")
+    plt.show()
+
+    # Визуализация с истинными метками:
+    plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_test, cmap='coolwarm', label='True classes')
+    plt.colorbar()
+    plt.title("t-SNE Visualization based on true classes")
     plt.show()
 
 if __name__ == '__main__':
