@@ -51,13 +51,13 @@ def main():
     # Визуализация с предсказанными метками:
     plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_pred_test, cmap='viridis', label='Predicted classes')
     plt.colorbar()
-    plt.title("t-SNE Visualization based on predicted classes")
+    plt.title("knn -> t-SNE Visualization based on predicted classes")
     plt.show()
 
     # Визуализация с истинными метками:
     plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_test, cmap='coolwarm', label='True classes')
     plt.colorbar()
-    plt.title("t-SNE Visualization based on true classes")
+    plt.title("knn -> t-SNE Visualization based on true classes")
     plt.show()
 
 if __name__ == '__main__':
