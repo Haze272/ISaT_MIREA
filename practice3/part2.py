@@ -21,7 +21,7 @@ def main():
 
     # Перебор параметров с помощью Grid Search:
     param_grid = {
-        'n_neighbors': [5, 7, 9, 11, 15, 20],  # Увеличение диапазона соседей
+        'n_neighbors': [20, 30, 40, 50],  # Увеличение диапазона соседей
         'weights': ['uniform', 'distance'],  # Использовать взвешивание по расстоянию
         'metric': ['euclidean', 'manhattan', 'chebyshev', 'minkowski']
     }
@@ -46,7 +46,7 @@ def main():
     print("F1-Score:", f1_score(y_test, y_pred_test, average='weighted'))
 
     # Применение t-SNE к тестовым данным:
-    X_embedded = TSNE(n_components=2, perplexity=50, learning_rate=100).fit_transform(X_test)
+    X_embedded = TSNE(n_components=2, perplexity=20, learning_rate=10, n_iter=1000).fit_transform(X_test)
 
     # Визуализация с предсказанными метками:
     plt.figure(figsize=(10, 5))
