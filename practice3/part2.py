@@ -11,21 +11,18 @@ import numpy as np
 
 
 def main():
-    # Загрузка набора данных
     dermatology = fetch_ucirepo(id=33)
 
     X = dermatology.data.features.dropna()
     y = dermatology.data.targets.values.flatten()
     y = y[X.index]
-    y = np.array(y).astype(int)  # Преобразуем целевые значения в целые числа
+    y = np.array(y).astype(int)
 
-    # Разделить данные на обучающую и тестовую выборки:
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Перебор параметров с помощью Grid Search:
     param_grid = {
         'n_neighbors': [20, 30, 40, 50],  # Увеличение диапазона соседей
-        'weights': ['uniform', 'distance'],  # Использовать взвешивание по расстоянию
+        'weights': ['uniform', 'distance'],  # Использование взвешивания по расстоянию
         'metric': ['euclidean', 'manhattan', 'chebyshev', 'minkowski']
     }
 
@@ -34,11 +31,9 @@ def main():
 
     print("Best parameters found:", grid.best_params_)
 
-    # Обучить KNN-классификатор с лучшими параметрами:
     best_knn = grid.best_estimator_
     best_knn.fit(X_train, y_train)
 
-    # Проверить точность, Recall, Precision и F1:
     y_pred_train = best_knn.predict(X_train)
     y_pred_test = best_knn.predict(X_test)
 
@@ -48,10 +43,9 @@ def main():
     print("Recall:", recall_score(y_test, y_pred_test, average='weighted'))
     print("F1-Score:", f1_score(y_test, y_pred_test, average='weighted'))
 
-    # Применение t-SNE к тестовым данным:
+    # T-SNE
     X_tsne = TSNE(n_components=2, perplexity=20, learning_rate=10, max_iter=1000).fit_transform(X_test)
 
-    # Визуализация с t-SNE
     plt.figure(figsize=(10, 5))
     plt.scatter(X_tsne[:, 0], X_tsne[:, 1], c=y_pred_test, cmap='viridis', label='Predicted classes')
     plt.colorbar()
@@ -59,10 +53,18 @@ def main():
     plt.show()
 
     # TriMAP
-    trimap_model = trimap.TRIMAP(n_dims=2, n_inliers=12, n_outliers=4, n_random=3, distance='euclidean', lr=0.1,
-                                 n_iters=1000, apply_pca=True, verbose=True)
+    trimap_model = trimap.TRIMAP(
+        n_dims=2,
+        n_inliers=12,
+        n_outliers=4,
+        n_random=3,
+        distance='euclidean',
+        lr=0.1,
+        n_iters=1000,
+        apply_pca=True,
+        verbose=True
+    )
 
-    # Преобразуем X_test в numpy массив
     X_test_numpy = X_test.to_numpy()
     X_trimap = trimap_model.fit_transform(X_test_numpy)
 
@@ -73,11 +75,19 @@ def main():
     plt.show()
 
     # PACMAP
-    pacmap_model = pacmap.PaCMAP(n_components=2, n_neighbors=5, MN_ratio=0.5, FP_ratio=2.0,
-                                 distance='euclidean', lr=1.0, num_iters=(100, 100, 250), verbose=True,
-                                 apply_pca=True)
+    pacmap_model = pacmap.PaCMAP(
+        n_components=2,
+        n_neighbors=5,
+        MN_ratio=0.5,
+        FP_ratio=2.0,
+        distance='euclidean',
+        lr=1.0,
+        num_iters=(100, 100, 250),
+        verbose=True,
+        apply_pca=True
+    )
 
-    # Запускаем PACMAP
+
     X_pacmap = pacmap_model.fit_transform(X_test_numpy)
 
     plt.figure(figsize=(10, 5))
@@ -86,7 +96,7 @@ def main():
     plt.title("KNN -> PACMAP Visualization based on predicted classes")
     plt.show()
 
-    # Визуализация с истинными метками (для t-SNE, TriMAP и PACMAP)
+    # C истинными метками (для t-SNE, TriMAP и PACMAP)
     for X_embedded, method in zip([X_tsne, X_trimap, X_pacmap], ['t-SNE', 'TriMAP', 'PACMAP']):
         plt.figure(figsize=(10, 5))
         plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_test, cmap='coolwarm', label='True classes')
