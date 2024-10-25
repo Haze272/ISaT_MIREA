@@ -8,6 +8,22 @@ import pacmap
 import matplotlib.pyplot as plt
 import numpy as np
 
+def plot_metrics(train_metrics, test_metrics):
+    metrics_names = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
+    bar_width = 0.35
+
+    r1 = np.arange(len(metrics_names))
+    r2 = [x + bar_width for x in r1]
+    plt.bar(r1, train_metrics, color='b', width=bar_width, edgecolor='grey', label='Train')
+    plt.bar(r2, test_metrics, color='g', width=bar_width, edgecolor='grey', label='Test')
+
+    plt.xlabel('Metrics', fontweight='bold')
+    plt.xticks([r + bar_width / 2 for r in range(len(metrics_names))], metrics_names)
+    plt.ylabel('Score', fontweight='bold')
+    plt.title('Train and Test Metrics Comparison')
+    plt.legend()
+    plt.show()
+
 def main():
     dermatology = fetch_ucirepo(id=33)
 
@@ -34,13 +50,27 @@ def main():
     y_pred_train = best_svm.predict(X_train)
     y_pred_test = best_svm.predict(X_test)
 
-    print("Train Accuracy:", accuracy_score(y_train, y_pred_train))
-    print("Test Accuracy:", accuracy_score(y_test, y_pred_test))
-    print("Precision:", precision_score(y_test, y_pred_test, average='weighted'))
-    print("Recall:", recall_score(y_test, y_pred_test, average='weighted'))
-    print("F1-Score:", f1_score(y_test, y_pred_test, average='weighted'))
+    train_accuracy = accuracy_score(y_train, y_pred_train)
+    test_accuracy = accuracy_score(y_test, y_pred_test)
+    train_precision = precision_score(y_train, y_pred_train, average='weighted')
+    test_precision = precision_score(y_test, y_pred_test, average='weighted')
+    train_recall = recall_score(y_train, y_pred_train, average='weighted')
+    test_recall = recall_score(y_test, y_pred_test, average='weighted')
+    train_f1 = f1_score(y_train, y_pred_train, average='weighted')
+    test_f1 = f1_score(y_test, y_pred_test, average='weighted')
+
+    print("Train Accuracy:", train_accuracy)
+    print("Test Accuracy:", test_accuracy)
+    print("Precision:", test_precision)
+    print("Recall:", test_recall)
+    print("F1-Score:", test_f1)
 
     print("Число опорных векторов:", best_svm.n_support_)
+
+    # Визуализация метрик
+    train_metrics = [train_accuracy, train_precision, train_recall, train_f1]
+    test_metrics = [test_accuracy, test_precision, test_recall, test_f1]
+    plot_metrics(train_metrics, test_metrics)
 
     # T-SNE
     X_tsne = TSNE(n_components=2).fit_transform(X_test)
