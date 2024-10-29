@@ -18,11 +18,12 @@ def plot_metrics(train_metrics, test_metrics):
     plt.bar(r2, test_metrics, color='g', width=bar_width, edgecolor='grey', label='Test')
 
     plt.xlabel('Metrics', fontweight='bold')
-    plt.xticks([r + bar_width / 2 for r in range(len(metrics_names))], metrics_names)
+    plt.xticks(r1 + bar_width / 2, metrics_names)  # Обновление здесь
     plt.ylabel('Score', fontweight='bold')
     plt.title('Train and Test Metrics Comparison')
     plt.legend()
     plt.show()
+
 
 def main():
     dermatology = fetch_ucirepo(id=33)

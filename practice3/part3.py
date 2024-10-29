@@ -8,6 +8,21 @@ import numpy as np
 import trimap
 import pacmap
 
+def plot_metrics(train_metrics, test_metrics):
+    metrics_names = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
+    bar_width = 0.35
+
+    r1 = np.arange(len(metrics_names))
+    r2 = [x + bar_width for x in r1]
+    plt.bar(r1, train_metrics, color='b', width=bar_width, edgecolor='grey', label='Train')
+    plt.bar(r2, test_metrics, color='g', width=bar_width, edgecolor='grey', label='Test')
+
+    plt.xlabel('Metrics', fontweight='bold')
+    plt.xticks(r1 + bar_width / 2, metrics_names)  # Установка меток на оси x
+    plt.ylabel('Score', fontweight='bold')
+    plt.title('Train and Test Metrics Comparison for Random Forest')
+    plt.legend()
+    plt.show()
 
 def main():
     dermatology = fetch_ucirepo(id=33)
@@ -26,18 +41,26 @@ def main():
     y_pred_train = rf.predict(X_train)
     y_pred_test = rf.predict(X_test)
 
-    print("Train Accuracy:", accuracy_score(y_train, y_pred_train))
-    print("Test Accuracy:", accuracy_score(y_test, y_pred_test))
-    print("Precision:", precision_score(y_test, y_pred_test, average='weighted'))
-    print("Recall:", recall_score(y_test, y_pred_test, average='weighted'))
-    print("F1-Score:", f1_score(y_test, y_pred_test, average='weighted'))
+    train_accuracy = accuracy_score(y_train, y_pred_train)
+    test_accuracy = accuracy_score(y_test, y_pred_test)
+    train_precision = precision_score(y_train, y_pred_train, average='weighted')
+    test_precision = precision_score(y_test, y_pred_test, average='weighted')
+    train_recall = recall_score(y_train, y_pred_train, average='weighted')
+    test_recall = recall_score(y_test, y_pred_test, average='weighted')
+    train_f1 = f1_score(y_train, y_pred_train, average='weighted')
+    test_f1 = f1_score(y_test, y_pred_test, average='weighted')
+
+    # Визуализация метрик
+    train_metrics = [train_accuracy, train_precision, train_recall, train_f1]
+    test_metrics = [test_accuracy, test_precision, test_recall, test_f1]
+    plot_metrics(train_metrics, test_metrics)
 
     param_grid = {
-        'n_estimators': [100, 200, 300],  # Количество деревьев в лесу
-        'max_depth': [None, 10, 20, 30],  # Глубина деревьев
-        'min_samples_split': [2, 5, 10],  # Минимальное число образцов для разделения узла
-        'min_samples_leaf': [1, 2, 4],  # Минимальное число образцов в листе
-        'bootstrap': [True, False]  # Использовать или нет бутстраппинг
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'bootstrap': [True, False]
     }
 
     grid = GridSearchCV(RandomForestClassifier(random_state=42), param_grid, refit=True, verbose=2)
@@ -52,7 +75,7 @@ def main():
     plt.title("RF -> t-SNE Visualization based on predicted classes")
     plt.show()
 
-    # истиные
+    # истина
     plt.scatter(X_embedded_tsne[:, 0], X_embedded_tsne[:, 1], c=y_test, cmap='coolwarm', label='True classes')
     plt.colorbar()
     plt.title("RF -> t-SNE Visualization based on true classes")
@@ -67,7 +90,7 @@ def main():
     plt.title("RF -> TRIMAP Visualization based on predicted classes")
     plt.show()
 
-    # истиные
+    # истина
     plt.scatter(X_embedded_trimap[:, 0], X_embedded_trimap[:, 1], c=y_test, cmap='coolwarm', label='True classes')
     plt.colorbar()
     plt.title("RF -> TRIMAP Visualization based on true classes")
@@ -82,12 +105,11 @@ def main():
     plt.title("RF -> PaCMAP Visualization based on predicted classes")
     plt.show()
 
-    # истиные
+    # истина
     plt.scatter(X_embedded_pacmap[:, 0], X_embedded_pacmap[:, 1], c=y_test, cmap='coolwarm', label='True classes')
     plt.colorbar()
     plt.title("RF -> PaCMAP Visualization based on true classes")
     plt.show()
-
 
 if __name__ == '__main__':
     main()

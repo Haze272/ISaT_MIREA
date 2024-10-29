@@ -1,14 +1,28 @@
 from ucimlrepo import fetch_ucirepo
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.model_selection import GridSearchCV
 from sklearn.manifold import TSNE
 import trimap
 import pacmap
 import matplotlib.pyplot as plt
 import numpy as np
 
+def plot_metrics(train_metrics, test_metrics):
+    metrics_names = ['Accuracy', 'Precision', 'Recall', 'F1-Score']
+    bar_width = 0.35
+
+    r1 = np.arange(len(metrics_names))
+    r2 = [x + bar_width for x in r1]
+    plt.bar(r1, train_metrics, color='b', width=bar_width, edgecolor='grey', label='Train')
+    plt.bar(r2, test_metrics, color='g', width=bar_width, edgecolor='grey', label='Test')
+
+    plt.xlabel('Metrics', fontweight='bold')
+    plt.xticks(r1 + bar_width / 2, metrics_names)  # Установка меток на оси x
+    plt.ylabel('Score', fontweight='bold')
+    plt.title('Train and Test Metrics Comparison for KNN')
+    plt.legend()
+    plt.show()
 
 def main():
     dermatology = fetch_ucirepo(id=33)
@@ -21,8 +35,8 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     param_grid = {
-        'n_neighbors': [20, 30, 40, 50],  # Увеличение диапазона соседей
-        'weights': ['uniform', 'distance'],  # Использование взвешивания по расстоянию
+        'n_neighbors': [20, 30, 40, 50],
+        'weights': ['uniform', 'distance'],
         'metric': ['euclidean', 'manhattan', 'chebyshev', 'minkowski']
     }
 
@@ -37,11 +51,19 @@ def main():
     y_pred_train = best_knn.predict(X_train)
     y_pred_test = best_knn.predict(X_test)
 
-    print("Train Accuracy:", accuracy_score(y_train, y_pred_train))
-    print("Test Accuracy:", accuracy_score(y_test, y_pred_test))
-    print("Precision:", precision_score(y_test, y_pred_test, average='weighted'))
-    print("Recall:", recall_score(y_test, y_pred_test, average='weighted'))
-    print("F1-Score:", f1_score(y_test, y_pred_test, average='weighted'))
+    train_accuracy = accuracy_score(y_train, y_pred_train)
+    test_accuracy = accuracy_score(y_test, y_pred_test)
+    train_precision = precision_score(y_train, y_pred_train, average='weighted')
+    test_precision = precision_score(y_test, y_pred_test, average='weighted')
+    train_recall = recall_score(y_train, y_pred_train, average='weighted')
+    test_recall = recall_score(y_test, y_pred_test, average='weighted')
+    train_f1 = f1_score(y_train, y_pred_train, average='weighted')
+    test_f1 = f1_score(y_test, y_pred_test, average='weighted')
+
+    # Визуализация метрик
+    train_metrics = [train_accuracy, train_precision, train_recall, train_f1]
+    test_metrics = [test_accuracy, test_precision, test_recall, test_f1]
+    plot_metrics(train_metrics, test_metrics)
 
     # T-SNE
     X_tsne = TSNE(n_components=2, perplexity=20, learning_rate=10, max_iter=1000).fit_transform(X_test)
@@ -87,7 +109,6 @@ def main():
         apply_pca=True
     )
 
-
     X_pacmap = pacmap_model.fit_transform(X_test_numpy)
 
     plt.figure(figsize=(10, 5))
@@ -96,14 +117,13 @@ def main():
     plt.title("KNN -> PACMAP Visualization based on predicted classes")
     plt.show()
 
-    # C истинными метками (для t-SNE, TriMAP и PACMAP)
+    # С истинными метками (для t-SNE, TriMAP и PACMAP)
     for X_embedded, method in zip([X_tsne, X_trimap, X_pacmap], ['t-SNE', 'TriMAP', 'PACMAP']):
         plt.figure(figsize=(10, 5))
         plt.scatter(X_embedded[:, 0], X_embedded[:, 1], c=y_test, cmap='coolwarm', label='True classes')
         plt.colorbar()
         plt.title(f"KNN -> {method} Visualization based on true classes")
         plt.show()
-
 
 if __name__ == '__main__':
     main()
