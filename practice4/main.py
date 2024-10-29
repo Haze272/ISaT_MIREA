@@ -8,14 +8,11 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
-import umap
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.manifold import TSNE
 import trimap
 import pacmap
-import pandas as pd
-import numpy as np
 
 
 def train_classifiers(X_train, y_train, X_test, y_test):
@@ -95,26 +92,13 @@ def visualize_with_tsne(X, y, title, ax):
         ax=ax
     )
     ax.set_title(title)
-def visualize_with_umap(X, y, title, ax):
-    reducer = umap.UMAP()
-    embedding = reducer.fit_transform(X)
-
-    sns.scatterplot(
-        x=embedding[:, 0],
-        y=embedding[:, 1],
-        hue=y,
-        palette='viridis',
-        alpha=0.6,
-        ax=ax
-    )
-    ax.set_title(title)
 
 
 def main():
-    ionosphere = fetch_ucirepo(id=52)
+    dermatology = fetch_ucirepo(id=33)
 
-    X = ionosphere .data.features.dropna()
-    y = ionosphere .data.targets.values.flatten()
+    X = dermatology .data.features.dropna()
+    y = dermatology .data.targets.values.flatten()
     y = y[X.index]
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
@@ -122,37 +106,37 @@ def main():
     results_before = train_classifiers(X_train, y_train, X_test, y_test)
     results_after, results_x_y = balance_and_train(X_train, y_train, X_test, y_test)
 
-    print("Результаты до балансировки:")
+    print("Until balancing:")
     for clf_name, metrics in results_before.items():
-        print(f"\nКлассификатор: {clf_name}")
-        print(f"Точность: {metrics['accuracy']:.4f}")
-        print(f"Полнота: {metrics['g']['recall']:.4f}")
-        print(f"F1-мера: {metrics['g']['f1-score']:.4f}")
+        print(f"\nClassificator: {clf_name}")
+        print(f"Accuracy: {metrics['accuracy']:.4f}")
+        print(f"Recall: {metrics['1']['recall']:.4f}")
+        print(f"F1-score: {metrics['1']['f1-score']:.4f}")
 
-    print("\nРезультаты после балансировки:")
+    print("\nAfter balancing:")
     for method_name, classifiers in results_after.items():
-        print(f"\nМетод: {method_name}")
+        print(f"\nMethod: {method_name}")
         for clf_name, metrics in classifiers.items():
-            print(f"\nКлассификатор: {clf_name}")
-            print(f"Точность: {metrics['accuracy']:.4f}")
-            print(f"Полнота: {metrics['g']['recall']:.4f}")
-            print(f"F1-мера: {metrics['g']['f1-score']:.4f}")
+            print(f"\nClassificator: {clf_name}")
+            print(f"Accuracy: {metrics['accuracy']:.4f}")
+            print(f"Recall: {metrics['1']['recall']:.4f}")
+            print(f"F1-score: {metrics['1']['f1-score']:.4f}")
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
 
-    visualize_with_pacmap(X, y, 'Исходные данные', ax1)
+    visualize_with_pacmap(X, y, 'Source data', ax1)
 
     X_resampled_smote = results_x_y['SMOTE'][0]
     y_resampled_smote = results_x_y['SMOTE'][1]
-    visualize_with_pacmap(X_resampled_smote, y_resampled_smote, 'После балансировки (SMOTE)', ax2)
+    visualize_with_pacmap(X_resampled_smote, y_resampled_smote, 'After balancing (SMOTE)', ax2)
 
     X_resampled_bsmote = results_x_y['Borderline-SMOTE'][0]
     y_resampled_bsmote = results_x_y['Borderline-SMOTE'][1]
-    visualize_with_pacmap(X_resampled_bsmote, y_resampled_bsmote, 'После балансировки (Borderline-SMOTE)', ax3)
+    visualize_with_pacmap(X_resampled_bsmote, y_resampled_bsmote, 'After balancing (Borderline-SMOTE)', ax3)
 
     X_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][0]
     y_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][1]
-    visualize_with_pacmap(X_resampled_bsmote2, y_resampled_bsmote2, 'После балансировки (Borderline-SMOTE2)', ax4)
+    visualize_with_pacmap(X_resampled_bsmote2, y_resampled_bsmote2, 'After balancing (Borderline-SMOTE2)', ax4)
 
     plt.tight_layout()
     plt.suptitle('visualize_with_pacmap')
@@ -160,19 +144,19 @@ def main():
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
 
-    visualize_with_trimap(X, y, 'Исходные данные', ax1)
+    visualize_with_trimap(X, y, 'Source data', ax1)
 
     X_resampled_smote = results_x_y['SMOTE'][0]
     y_resampled_smote = results_x_y['SMOTE'][1]
-    visualize_with_trimap(X_resampled_smote, y_resampled_smote, 'После балансировки (SMOTE)', ax2)
+    visualize_with_trimap(X_resampled_smote, y_resampled_smote, 'After balancing (SMOTE)', ax2)
 
     X_resampled_bsmote = results_x_y['Borderline-SMOTE'][0]
     y_resampled_bsmote = results_x_y['Borderline-SMOTE'][1]
-    visualize_with_trimap(X_resampled_bsmote, y_resampled_bsmote, 'После балансировки (Borderline-SMOTE)', ax3)
+    visualize_with_trimap(X_resampled_bsmote, y_resampled_bsmote, 'After balancing (Borderline-SMOTE)', ax3)
 
     X_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][0]
     y_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][1]
-    visualize_with_trimap(X_resampled_bsmote2, y_resampled_bsmote2, 'После балансировки (Borderline-SMOTE2)', ax4)
+    visualize_with_trimap(X_resampled_bsmote2, y_resampled_bsmote2, 'After balancing (Borderline-SMOTE2)', ax4)
 
     plt.tight_layout()
     plt.suptitle('visualize_with_trimap')
@@ -180,42 +164,22 @@ def main():
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
 
-    visualize_with_tsne(X, y, 'Исходные данные', ax1)
+    visualize_with_tsne(X, y, 'Source data', ax1)
 
     X_resampled_smote = results_x_y['SMOTE'][0]
     y_resampled_smote = results_x_y['SMOTE'][1]
-    visualize_with_tsne(X_resampled_smote, y_resampled_smote, 'После балансировки (SMOTE)', ax2)
+    visualize_with_tsne(X_resampled_smote, y_resampled_smote, 'After balancing (SMOTE)', ax2)
 
     X_resampled_bsmote = results_x_y['Borderline-SMOTE'][0]
     y_resampled_bsmote = results_x_y['Borderline-SMOTE'][1]
-    visualize_with_tsne(X_resampled_bsmote, y_resampled_bsmote, 'После балансировки (Borderline-SMOTE)', ax3)
+    visualize_with_tsne(X_resampled_bsmote, y_resampled_bsmote, 'After balancing (Borderline-SMOTE)', ax3)
 
     X_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][0]
     y_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][1]
-    visualize_with_tsne(X_resampled_bsmote2, y_resampled_bsmote2, 'После балансировки (Borderline-SMOTE2)', ax4)
+    visualize_with_tsne(X_resampled_bsmote2, y_resampled_bsmote2, 'After balancing (Borderline-SMOTE2)', ax4)
 
     plt.tight_layout()
     plt.suptitle('visualize_with_tsne')
-    plt.show()
-
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
-
-    visualize_with_umap(X, y, 'Исходные данные', ax1)
-
-    X_resampled_smote = results_x_y['SMOTE'][0]
-    y_resampled_smote = results_x_y['SMOTE'][1]
-    visualize_with_umap(X_resampled_smote, y_resampled_smote, 'После балансировки (SMOTE)', ax2)
-
-    X_resampled_bsmote = results_x_y['Borderline-SMOTE'][0]
-    y_resampled_bsmote = results_x_y['Borderline-SMOTE'][1]
-    visualize_with_umap(X_resampled_bsmote, y_resampled_bsmote, 'После балансировки (Borderline-SMOTE)', ax3)
-
-    X_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][0]
-    y_resampled_bsmote2 = results_x_y['Borderline-SMOTE2'][1]
-    visualize_with_umap(X_resampled_bsmote2, y_resampled_bsmote2, 'После балансировки (Borderline-SMOTE2)', ax4)
-
-    plt.tight_layout()
-    plt.suptitle('visualize_with_umap')
     plt.show()
 
 
