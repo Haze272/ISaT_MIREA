@@ -93,6 +93,38 @@ def visualize_with_tsne(X, y, title, ax):
     )
     ax.set_title(title)
 
+def plot_accuracy_before(results_before):
+    accuracies = [metrics['accuracy'] for metrics in results_before.values()]
+    clf_names = list(results_before.keys())
+
+    plt.figure(figsize=(8, 6))
+    plt.bar(clf_names, accuracies, color='skyblue')
+    plt.xlabel('Classifier')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy Before Balancing')
+    plt.ylim(0, 1)
+    plt.show()
+
+
+def plot_accuracy_after(results_after):
+    method_names = list(results_after.keys())
+    classifier_names = list(next(iter(results_after.values())).keys())
+    width = 0.2
+
+    plt.figure(figsize=(10, 6))
+
+    for i, clf_name in enumerate(classifier_names):
+        accuracies = [results_after[method_name][clf_name]['accuracy'] for method_name in method_names]
+        plt.bar([j + i * width for j in range(len(method_names))], accuracies, width=width, label=clf_name)
+
+    plt.xticks([j + width for j in range(len(method_names))], method_names)
+    plt.xlabel('Balancing Method')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy After Balancing')
+    plt.ylim(0, 1)
+    plt.legend(title='Classifier')
+    plt.show()
+
 
 def main():
     dermatology = fetch_ucirepo(id=33)
@@ -121,6 +153,9 @@ def main():
             print(f"Accuracy: {metrics['accuracy']:.4f}")
             print(f"Recall: {metrics['1']['recall']:.4f}")
             print(f"F1-score: {metrics['1']['f1-score']:.4f}")
+
+    plot_accuracy_before(results_before)
+    plot_accuracy_after(results_after)
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
 
