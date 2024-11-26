@@ -19,7 +19,7 @@ def visualize_with_trimap(scaled_data, title):
     plt.show()
 
 def main():
-    df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice2/mammoth2.csv")
+    df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice2 (3-4)/mammoth2.csv")
     numerical_data = df.select_dtypes(include=['float64', 'int64'])
     # numerical_data = numerical_data.sample(frac=0.1, random_state=42)
 

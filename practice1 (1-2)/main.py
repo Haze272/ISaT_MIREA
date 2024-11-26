@@ -22,10 +22,10 @@ import time
 def main():
     min_sup = 0.01
     min_conf = 0.2
-    # df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice1/online_retail.csv")
+    # df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice1 (1-2)/online_retail.csv")
     # df = df.groupby('InvoiceNo')['Description'].apply(list).tolist()
 
-    df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice1/BreadBasket_DMS.csv")
+    df = pd.read_csv("/home/berkunov/Documents/GitHub/ISaT_MIREA/practice1 (1-2)/BreadBasket_DMS.csv")
     df = df.groupby('Transaction')['Item'].apply(list).tolist()
 
     # apriori_python
