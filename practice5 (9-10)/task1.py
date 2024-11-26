@@ -24,28 +24,28 @@ class GeneticAlgorithm:
         return np.apply_along_axis(boot_function, 1, population)
 
     def select_parents(self, population, fitness_values):
-        # Используем элитизм: выбираем лучших половину популяции для родителей
         selected_indices = np.argsort(fitness_values)[:self.population_size // 2]
         return population[selected_indices]
 
     def crossover(self, parent1, parent2):
-        # Кроссовер может быть более плавным (например, комбинируем лучшее из обоих родителей)
         return np.clip((parent1 + parent2) / 2, -10, 10)
 
     def mutate(self, individual):
-        # Плавная мутация с меньшим изменением
         if np.random.rand() < self.mutation_rate:
-            individual += np.random.normal(0, 0.5, 2)  # Уменьшаем амплитуду мутации
+            individual += np.random.normal(0, 0.5, 2)
         return individual
 
     def run(self):
         population = self.create_population()
         best_fitness_values = []
+        global_best = float('inf')  # Инициализация глобального лучшего значения
         for generation in range(self.generations):
             fitness_values = self.fitness(population)
-            best_fitness_values.append(np.min(fitness_values))
-            parents = self.select_parents(population, fitness_values)
+            generation_best = np.min(fitness_values)
+            global_best = min(global_best, generation_best)  # Обновляем глобальный минимум
+            best_fitness_values.append(global_best)  # Добавляем накопительный минимум
 
+            parents = self.select_parents(population, fitness_values)
             new_population = []
             for _ in range(self.population_size // 2):
                 parent1, parent2 = parents[np.random.choice(len(parents), size=2, replace=False)]
@@ -56,7 +56,8 @@ class GeneticAlgorithm:
 
             population = np.array(new_population)
 
-        return np.min(self.fitness(population)), best_fitness_values
+        return global_best, best_fitness_values
+
 
 def optimize_with_newton(iterations):
     results = []
