@@ -154,11 +154,15 @@ def main():
 
     # ЗАДАНИЕ 2
     df = pd.read_csv(
-        "/home/esteban/Documents/GitHub/ISaT_MIREA/practice6 (11-12)/archive/covid_19_clean_complete.csv",
+        "/home/esteban/Documents/GitHub/ISaT_MIREA/practice6 (11-12)/archive/country_wise_latest.csv",
         sep=',',
         header=0
     )
     df = df.drop(df.columns[0], axis=1)
+    df = df.drop(df.columns[-1], axis=1)
+    df = df.drop(df.columns[-1], axis=1)
+    df = df.drop(df.columns[-1], axis=1)
+    df = df.drop(df.columns[-1], axis=1)
 
     target_column = df.columns[-1]
 
