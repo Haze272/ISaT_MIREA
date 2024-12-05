@@ -9,6 +9,7 @@ import umap
 import trimap
 import pacmap
 import os
+import seaborn as sns
 
 os.environ['OMP_NUM_THREADS'] = '1'
 
@@ -34,11 +35,15 @@ def visualize_clusters(X, y, cluster_model, dim_reduction_model, ax, **kwargs):
 
     if isinstance(cluster_model, KMeans):
         centroids = cluster_model.cluster_centers_
-        centroids_reduced = dim_reduction_model.transform(centroids) if hasattr(dim_reduction_model, 'transform') else None
+        centroids_reduced = dim_reduction_model.transform(centroids) if hasattr(dim_reduction_model,
+                                                                                'transform') else None
 
         if centroids_reduced is not None:
             ax.scatter(centroids_reduced[:, 0], centroids_reduced[:, 1],
                        color='black', marker='X', s=200, label='Centroids')
+
+    elif not isinstance(cluster_model, KMeans):
+        print("Model does not have centroids to plot.")
 
     ax.set_title(f'Clusters Visualization with {dim_reduction_model.__class__.__name__}')
     ax.set_xlabel('Dimension 1')
@@ -112,6 +117,24 @@ def main():
     y = glass.data.targets.values.flatten()
     y = y[X.index]
 
+    plt.figure(figsize=(20, 15))
+    corr = X.corr()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', center=0)
+    plt.title('Тепловая карта корреляции')
+    plt.show()
+
+
+    plt.figure(figsize=(10, 7))
+    sns.boxplot(data=X, orient="h")
+    plt.title('Ящики с усами')
+    plt.show()
+
+
+    plt.figure(figsize=(10, 7))
+    sns.violinplot(data=X, orient="h")
+    plt.title('Violin Plot')
+    plt.show()
+
     agglo_ari_scores = calculate_ari_scores(AgglomerativeClustering, X, y)
 
     kmeans_ari_scores = calculate_ari_scores(KMeans, X, y)
@@ -136,9 +159,9 @@ def main():
     optimal_n_clusters = input("Оптимальное количество кластеров ")
     model_num = input("Выберите модель. 0 - AgglomerativeClustering, 1 - KMeans ")
 
-    if model_num == 0:
-        model = AgglomerativeClustering(n_clusters=int(optimal_n_clusters), random_state=42)
-    else:
+    if model_num == '0':
+        model = AgglomerativeClustering(n_clusters=int(optimal_n_clusters))
+    if model_num == '1':
         model = KMeans(n_clusters=int(optimal_n_clusters), random_state=42)
 
     X_np = X.values
@@ -153,21 +176,31 @@ def main():
     plt.show()
 
     # ЗАДАНИЕ 2
-    df = pd.read_csv(
-        "/home/esteban/Documents/GitHub/ISaT_MIREA/practice6 (11-12)/archive/country_wise_latest.csv",
-        sep=',',
-        header=0
-    )
+    df = pd.read_csv("/home/esteban/Documents/GitHub/ISaT_MIREA/practice6 (11-12)/archive/country_wise_latest.csv",
+                     sep=',',
+                     header=0)
     df = df.drop(df.columns[0], axis=1)
-    df = df.drop(df.columns[-1], axis=1)
-    df = df.drop(df.columns[-1], axis=1)
-    df = df.drop(df.columns[-1], axis=1)
-    df = df.drop(df.columns[-1], axis=1)
 
     target_column = df.columns[-1]
 
     X = df.drop(target_column, axis=1)
     y = df[target_column]
+
+    plt.figure(figsize=(20, 15))
+    corr = X.corr()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', center=0)
+    plt.title('Тепловая карта корреляции')
+    plt.show()
+
+    plt.figure(figsize=(10, 7))
+    sns.boxplot(data=X, orient="h")
+    plt.title('Ящики с усами')
+    plt.show()
+
+    plt.figure(figsize=(10, 7))
+    sns.violinplot(data=X, orient="h")
+    plt.title('Violin Plot')
+    plt.show()
 
     n_clusters_range = list(range(2, 11))
     agg_silhouettes = evaluate_agglomerative_clustering(X, n_clusters_range)
@@ -176,11 +209,11 @@ def main():
     plot_all_results(n_clusters_range, agg_silhouettes, km_sse, km_silhouettes)
 
     optimal_n_clusters = input("Оптимальное количество кластеров ")
-    model_num = input("Выберите модель. 0 - AgglomerativeClustering, 1 - KMeans ")
+    modelя_num = input("Выберите модель. 0 - AgglomerativeClustering, 1 - KMeans ")
 
-    if model_num == 0:
-        model = AgglomerativeClustering(n_clusters=int(optimal_n_clusters), random_state=42)
-    else:
+    if model_num == '0':
+        model = AgglomerativeClustering(n_clusters=int(optimal_n_clusters))
+    if model_num == '1':
         model = KMeans(n_clusters=int(optimal_n_clusters), random_state=42)
 
     X_np = X.values
@@ -195,13 +228,29 @@ def main():
     plt.show()
 
     # ЗАДАНИЕ 3
-    df = pd.read_csv("/home/esteban/Documents/GitHub/ISaT_MIREA/practice2 (3-4)//mammoth.csv")
+    df = pd.read_csv("/home/esteban/Documents/GitHub/ISaT_MIREA/practice2 (3-4)/mammoth.csv")
 
     df = df.sample(3000, random_state=42)
     target_column = df.columns[-1]
 
     X = df.drop(target_column, axis=1)
     y = df[target_column]
+
+    plt.figure(figsize=(20, 15))
+    corr = X.corr()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', center=0)
+    plt.title('Тепловая карта корреляции')
+    plt.show()
+
+    plt.figure(figsize=(10, 7))
+    sns.boxplot(data=X, orient="h")
+    plt.title('Диаграмма размаха')
+    plt.show()
+
+    plt.figure(figsize=(10, 7))
+    sns.violinplot(data=X, orient="h")
+    plt.title('Violin Plot')
+    plt.show()
 
     n_clusters_range = list(range(2, 11))
     agg_silhouettes = evaluate_agglomerative_clustering(X, n_clusters_range)
@@ -212,9 +261,9 @@ def main():
     optimal_n_clusters = input("Оптимальное количество кластеров ")
     model_num = input("Выберите модель. 0 - AgglomerativeClustering, 1 - KMeans ")
 
-    if model_num == 0:
-        model = AgglomerativeClustering(n_clusters=int(optimal_n_clusters), random_state=42)
-    else:
+    if model_num == '0':
+        model = AgglomerativeClustering(n_clusters=int(optimal_n_clusters))
+    if model_num == '1':
         model = KMeans(n_clusters=int(optimal_n_clusters), random_state=42)
 
     X_np = X.values
