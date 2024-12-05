@@ -61,15 +61,22 @@ class GeneticAlgorithm:
 
 def optimize_with_newton(iterations):
     results = []
+    coords = []
     for _ in range(iterations):
+        # Генерация случайной стартовой точки из диапазона [-10, 10]
+        start_point = np.random.uniform(-10, 10, 2)
         start_time = time.time()
-        result = minimize(boot_function, [-10, 10], method='Newton-CG', jac=boot_gradient)
+        result = minimize(boot_function, start_point, method='Newton-CG', jac=boot_gradient)
         end_time = time.time()
         results.append((result.fun, end_time - start_time))
-    return results
+        coords.append(result.x)  # Сохраняем координаты
+    return results, coords
 
 iterations = 100
-newton_results = optimize_with_newton(iterations)
+# Запуск алгоритма Ньютона с рандомной стартовой точкой
+newton_results, newton_coords = optimize_with_newton(iterations)
+
+# Извлечение значений функции и времени выполнения
 newton_values, newton_times = zip(*newton_results)
 
 genetic_algorithm = GeneticAlgorithm(population_size=50, generations=100, mutation_rate=0.1)
@@ -138,4 +145,65 @@ results_table = pd.DataFrame({
     "Дисперсия времени": [newton_time_variance, genetic_time_variance],
 })
 
+print(results_table)
+
+newton_coords = []
+genetic_coords = []
+
+def optimize_with_newton(iterations):
+    results = []
+    coords = []
+    for _ in range(iterations):
+        # Генерация случайной стартовой точки из диапазона [-10, 10]
+        start_point = np.random.uniform(-10, 10, 2)
+        start_time = time.time()
+        result = minimize(boot_function, start_point, method='Newton-CG', jac=boot_gradient)
+        end_time = time.time()
+        results.append((result.fun, end_time - start_time))
+        coords.append(result.x)  # Сохраняем координаты
+    return results, coords
+
+# Запуск алгоритма Ньютона с рандомной стартовой точкой
+newton_results, newton_coords = optimize_with_newton(iterations)
+
+# Извлечение значений функции и времени выполнения
+newton_values, newton_times = zip(*newton_results)
+
+genetic_algorithm = GeneticAlgorithm(population_size=50, generations=100, mutation_rate=0.1)
+genetic_coords = []
+
+for _ in range(iterations):
+    start_time = time.time()
+    value, best_fitness_values = genetic_algorithm.run()
+    end_time = time.time()
+    genetic_results.append(value)
+    genetic_times.append(end_time - start_time)
+    # Сохраняем координаты лучшего решения для каждого запуска
+    final_population = genetic_algorithm.create_population()
+    final_fitness = genetic_algorithm.fitness(final_population)
+    best_index = np.argmin(final_fitness)
+    genetic_coords.append(final_population[best_index])
+
+# Вычисляем средние координаты
+newton_coords_mean = np.mean(newton_coords, axis=0)
+genetic_coords_mean = np.mean(genetic_coords, axis=0)
+
+# Вычисляем дисперсии координат
+newton_coords_variance = np.var(newton_coords, axis=0)
+genetic_coords_variance = np.var(genetic_coords, axis=0)
+
+print("\n==============================================================================================\n")
+print("+ Средние координаты и дисперсии:")
+print(f"+ Алгоритм Ньютона: X1 = {newton_coords_mean[0]:.5f}, X2 = {newton_coords_mean[1]:.5f}, "
+      f"Дисперсия X1 = {newton_coords_variance[0]:.5f}, Дисперсия X2 = {newton_coords_variance[1]:.5f}")
+print(f"+ Генетический алгоритм: X1 = {genetic_coords_mean[0]:.5f}, X2 = {genetic_coords_mean[1]:.5f}, "
+      f"Дисперсия X1 = {genetic_coords_variance[0]:.5f}, Дисперсия X2 = {genetic_coords_variance[1]:.5f}")
+
+# Обновляем таблицу результатов
+results_table["Средняя X1"] = [newton_coords_mean[0], genetic_coords_mean[0]]
+results_table["Средняя X2"] = [newton_coords_mean[1], genetic_coords_mean[1]]
+results_table["Дисперсия X1"] = [newton_coords_variance[0], genetic_coords_variance[0]]
+results_table["Дисперсия X2"] = [newton_coords_variance[1], genetic_coords_variance[1]]
+
+print("\n==============================================================================================\n")
 print(results_table)
